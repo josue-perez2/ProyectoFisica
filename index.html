@@ -1,367 +1,521 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-    <meta charset="UTF-8">
-    <title>Tiro Parabólico - Castillo y Cañón</title>
-    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simulador de Tiro Parabólico</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            background: linear-gradient(135deg, #101828, #1e293b);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 5px;
+            color: #38bdf8;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 5px;
+            color: #38bdf8;
+        }
+
+        .subtitulo {
+            text-align: center;
+            color: #cbd5e1;
+            margin-bottom: 20px;
+        }
+
+        .contenedor {
+            display: grid;
+            grid-template-columns: 330px 1fr;
+            gap: 20px;
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .panel,
+        .canvas-box,
+        .resultados,
+        .tabla-box {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 18px;
+            padding: 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .grupo {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+            color: #e2e8f0;
+        }
+
+        input[type="number"],
+        input[type="range"] {
+            width: 100%;
+        }
+
+        input[type="number"] {
+            padding: 10px;
+            border-radius: 10px;
+            border: none;
+            outline: none;
+            background: #f8fafc;
+            color: #0f172a;
+            font-size: 15px;
+        }
+
+        .botones {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        button {
+            border: none;
+            padding: 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            color: white;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+
+        button:hover {
+            transform: scale(1.03);
+            opacity: 0.9;
+        }
+
+        .btn-calcular {
+            background: #0284c7;
+        }
+
+        .btn-animar {
+            background: #16a34a;
+        }
+
+        .btn-pausar {
+            background: #f59e0b;
+        }
+
+        canvas {
+            width: 100%;
+            height: 520px;
+            display: block;
+            background: linear-gradient(#7dd3fc, #e0f2fe 65%, #22c55e 65%, #15803d);
+            border-radius: 14px;
+        }
+
+        .resultados {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .card {
+            background: rgba(15, 23, 42, 0.75);
+            border-radius: 14px;
+            padding: 14px;
+            text-align: center;
+        }
+
+        .card span {
+            display: block;
+            color: #94a3b8;
+            font-size: 13px;
+        }
+
+        .card strong {
+            font-size: 22px;
+            color: #38bdf8;
+        }
+
+        .tabla-box {
+            margin-top: 20px;
+            max-height: 260px;
+            overflow: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th,
+        td {
+            padding: 9px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            text-align: center;
+        }
+
+        th {
+            color: #38bdf8;
+            position: sticky;
+            top: 0;
+            background: #0f172a;
+        }
+
+        .formula {
+            margin-top: 18px;
+            background: rgba(14, 165, 233, 0.13);
+            border-left: 4px solid #38bdf8;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 14px;
+            color: #e0f2fe;
+        }
+
+        @media (max-width: 900px) {
+            .contenedor {
+                grid-template-columns: 1fr;
+            }
+
+            .resultados {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
 </head>
-dibujarEscena();
-    <main>
-        
-        <canvas id="canva" width="1100" height="600"></canvas>
-        <div id="puntos"></div>
-        <dialog id="instrucciones">
-            <h2>Instrucciones</h2>
-            <p>Ingresa el ángulo y la velocidad inicial, luego presiona "Disparar" para lanzar el cañón. Si el proyectil alcanza el castillo enemigo, verás los datos del tiro parabólico.</p>
-            <button onclick="document.getElementById('instrucciones').close()">Cerrar</button>
-        </dialog>
-        <dialog id="datos-dialogo"></dialog>
-    </main>
-    <body>
-        <div class="card-central">
-            <div class="canvas-container">
-                <div class="controles-dentro-canvas">
-                    <label>Ángulo (°): <input type="number" id="angulo" value="45" min="0" max="90"></label>
-                    <label>Velocidad (m/s): <input type="number" id="velocidad" value="30" min="1"></label>
-                    <button onclick="disparar()">Disparar</button>
-                    <button onclick="document.getElementById('instrucciones').showModal()">Instrucciones</button>
-                </div>
-                <canvas id="canva" width="1000" height="500"></canvas>
-                <div id="puntos"></div>
+
+<body>
+    <h1>Josué Alejandro Pérez Maás 5990-25-2917</h1>
+    <h2>Simulador Visual de Tiro Parabólico</h2>
+
+    <div class="contenedor">
+        <div class="panel">
+            <h2>Datos iniciales</h2>
+
+            <div class="grupo">
+                <label>Velocidad inicial: <span id="txtVelocidad">40</span> m/s</label>
+                <input type="range" id="velocidad" min="1" max="120" value="40" />
+                <input type="number" id="velocidadNum" min="1" max="120" value="40" />
             </div>
-            <dialog id="instrucciones">
-                <h2>Instrucciones</h2>
-                <p>Ingresa el ángulo y la velocidad inicial, luego presiona "Disparar" para lanzar el cañón. Si el proyectil alcanza el castillo enemigo, verás los datos del tiro parabólico.</p>
-                <button onclick="document.getElementById('instrucciones').close()">Cerrar</button>
-            <dialog id="datos-dialogo"></dialog>
+
+            <div class="grupo">
+                <label>Ángulo: <span id="txtAngulo">45</span>°</label>
+                <input type="range" id="angulo" min="1" max="89" value="45" />
+                <input type="number" id="anguloNum" min="1" max="89" value="45" />
+            </div>
+
+            <div class="grupo">
+                <label>Altura inicial: <span id="txtAltura">0</span> m</label>
+                <input type="range" id="altura" min="0" max="100" value="0" />
+                <input type="number" id="alturaNum" min="0" max="100" value="0" />
+            </div>
+
+            <div class="grupo">
+                <label>Gravedad: <span id="txtGravedad">9.8</span> m/s²</label>
+                <input type="number" id="gravedad" step="0.1" min="1" value="9.8" />
+            </div>
+
+            <div class="botones">
+               
+                <button class="btn-animar" onclick="iniciarAnimacion()">Animar</button>
+                <button class="btn-pausar" onclick="pausarAnimacion()">Pausar</button>
+            </div>
+
+
         </div>
-        <script>
-    const canvas = document.getElementById('canva');
-    const ctx = canvas.getContext('2d');
-    const g = 9.8;
-    const castilloX = 800, castilloY = 300, castilloW = 90, castilloH = 180;
-    const canonX = 120, canonY = 440;
-    let puntos = 0;
 
-    const imgCastillo = new window.Image();
-    imgCastillo.src = 'https://cdn.pixabay.com/photo/2013/07/13/12/46/castle-146098_1280.png';
-    const imgCastilloPropio = new window.Image();
-    imgCastilloPropio.src = 'https://cdn.pixabay.com/photo/2013/07/13/12/46/castle-146098_1280.png';
+        <div>
+            <div class="canvas-box">
+                <canvas id="canvas" width="900" height="520"></canvas>
+            </div>
 
-    function dibujarEscena(proyectil, tray) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        // Suelo
-        ctx.fillStyle = '#6c4c2b';
-        ctx.fillRect(0, 480, 1000, 20);
-        // Castillo enemigo (imagen)
-        if (imgCastillo.complete && imgCastillo.naturalWidth > 0) {
-            ctx.drawImage(imgCastillo, castilloX, castilloY, castilloW, castilloH);
-        } else {
-            ctx.fillStyle = '#888';
-            ctx.fillRect(castilloX, castilloY, castilloW, castilloH);
+            <div class="resultados">
+                <div class="card">
+                    <span>Alcance máximo</span>
+                    <strong id="alcance">0 m</strong>
+                </div>
+                <div class="card">
+                    <span>Altura máxima</span>
+                    <strong id="alturaMax">0 m</strong>
+                </div>
+                <div class="card">
+                    <span>Tiempo total</span>
+                    <strong id="tiempoTotal">0 s</strong>
+                </div>
+                <div class="card">
+                    <span>Velocidad inicial</span>
+                    <strong id="velocidadInfo">0 m/s</strong>
+                </div>
+            </div>
+
+            <div class="tabla-box">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>t (s)</th>
+                            <th>x (m)</th>
+                            <th>y (m)</th>
+                            <th>vₓ (m/s)</th>
+                            <th>vᵧ (m/s)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaDatos"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        const velocidad = document.getElementById('velocidad');
+        const velocidadNum = document.getElementById('velocidadNum');
+        const angulo = document.getElementById('angulo');
+        const anguloNum = document.getElementById('anguloNum');
+        const altura = document.getElementById('altura');
+        const alturaNum = document.getElementById('alturaNum');
+        const gravedad = document.getElementById('gravedad');
+
+        let puntos = [];
+        let animacionId = null;
+        let indiceAnimacion = 0;
+        let escala = 1;
+        let datosActuales = null;
+
+        sincronizarInput(velocidad, velocidadNum, 'txtVelocidad');
+        sincronizarInput(angulo, anguloNum, 'txtAngulo');
+        sincronizarInput(altura, alturaNum, 'txtAltura');
+
+        gravedad.addEventListener('input', () => {
+            document.getElementById('txtGravedad').textContent = gravedad.value;
+        });
+
+        function sincronizarInput(range, number, textoId) {
+            range.addEventListener('input', () => {
+                number.value = range.value;
+                document.getElementById(textoId).textContent = range.value;
+                calcular();
+            });
+
+            number.addEventListener('input', () => {
+                range.value = number.value;
+                document.getElementById(textoId).textContent = number.value;
+                calcular();
+            });
         }
-        // Castillo propio (imagen)
-        if (imgCastilloPropio.complete && imgCastilloPropio.naturalWidth > 0) {
-            ctx.drawImage(imgCastilloPropio, canonX-60, canonY-120, 120, 120);
-        } else {
-            ctx.fillStyle = '#bfa';
-            ctx.fillRect(canonX-60, canonY-120, 120, 120);
+
+        function obtenerDatos() {
+            const v0 = Number(velocidad.value);
+            const ang = Number(angulo.value);
+            const h = Number(altura.value);
+            const g = Number(gravedad.value);
+            const rad = ang * Math.PI / 180;
+
+            const vx = v0 * Math.cos(rad);
+            const vy = v0 * Math.sin(rad);
+
+            const tiempoTotal = (vy + Math.sqrt(vy * vy + 2 * g * h)) / g;
+            const alcance = vx * tiempoTotal;
+            const alturaMax = h + (vy * vy) / (2 * g);
+
+            return { v0, ang, h, g, rad, vx, vy, tiempoTotal, alcance, alturaMax };
         }
-        // Cañón
-        ctx.save();
-        ctx.translate(canonX, canonY);
-        ctx.rotate(-Number(document.getElementById('angulo').value)*Math.PI/180);
-        ctx.fillStyle = '#222';
-        ctx.fillRect(0, -10, 50, 20);
-        ctx.restore();
-        // Trayectoria (puntos)
-        if (tray && tray.length > 1) {
-            ctx.save();
-            ctx.strokeStyle = '#f00';
-            ctx.setLineDash([6, 10]);
+
+        function calcular() {
+            cancelarAnimacion();
+            datosActuales = obtenerDatos();
+            puntos = [];
+
+            const pasos = 120;
+            for (let i = 0; i <= pasos; i++) {
+                const t = (datosActuales.tiempoTotal / pasos) * i;
+                const x = datosActuales.vx * t;
+                const y = datosActuales.h + datosActuales.vy * t - 0.5 * datosActuales.g * t * t;
+                const vyActual = datosActuales.vy - datosActuales.g * t;
+                puntos.push({ t, x, y: Math.max(0, y), vx: datosActuales.vx, vy: vyActual });
+            }
+
+            actualizarResultados(datosActuales);
+            llenarTabla(puntos);
+            dibujarEscena(puntos.length - 1);
+        }
+
+        function actualizarResultados(d) {
+            document.getElementById('alcance').textContent = d.alcance.toFixed(2) + ' m';
+            document.getElementById('alturaMax').textContent = d.alturaMax.toFixed(2) + ' m';
+            document.getElementById('tiempoTotal').textContent = d.tiempoTotal.toFixed(2) + ' s';
+            document.getElementById('velocidadInfo').textContent = d.v0.toFixed(2) + ' m/s';
+        }
+
+        function llenarTabla(lista) {
+            const tbody = document.getElementById('tablaDatos');
+            tbody.innerHTML = '';
+
+            for (let i = 0; i < lista.length; i += 10) {
+                const p = lista[i];
+                tbody.innerHTML += `
+          <tr>
+            <td>${p.t.toFixed(2)}</td>
+            <td>${p.x.toFixed(2)}</td>
+            <td>${p.y.toFixed(2)}</td>
+            <td>${p.vx.toFixed(2)}</td>
+            <td>${p.vy.toFixed(2)}</td>
+          </tr>
+        `;
+            }
+        }
+
+        function dibujarEscena(hastaIndice) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (!datosActuales) return;
+
+            const margen = 55;
+            const anchoUtil = canvas.width - margen * 2;
+            const altoUtil = canvas.height - margen * 2;
+
+            escala = Math.min(
+                anchoUtil / Math.max(datosActuales.alcance, 1),
+                altoUtil / Math.max(datosActuales.alturaMax, 1)
+            ) * 0.9;
+
+            const sueloY = canvas.height - margen;
+            const origenX = margen;
+            const origenY = sueloY - datosActuales.h * escala;
+
+            dibujarEjes(origenX, sueloY, margen);
+            dibujarCanon(origenX, origenY, datosActuales.ang);
+
+            // Dibujar trayectoria completa punteada
             ctx.beginPath();
-            ctx.moveTo(tray[0].x, tray[0].y);
-            for (let i=1; i<tray.length; ++i) ctx.lineTo(tray[i].x, tray[i].y);
+            ctx.setLineDash([8, 8]);
+            ctx.strokeStyle = 'rgba(2, 132, 199, 0.6)';
+            ctx.lineWidth = 3;
+            puntos.forEach((p, i) => {
+                const px = origenX + p.x * escala;
+                const py = sueloY - p.y * escala;
+                if (i === 0) ctx.moveTo(px, py);
+                else ctx.lineTo(px, py);
+            });
             ctx.stroke();
             ctx.setLineDash([]);
-            ctx.restore();
-        }
-        // Proyectil
-        if (proyectil) {
-            ctx.fillStyle = 'red';
+
+            // Dibujar trayectoria recorrida
             ctx.beginPath();
-            ctx.arc(proyectil.x, proyectil.y, 10, 0, Math.PI*2);
-            ctx.fill();
-        }
-    }
-
-    if (imgCastillo.complete) {
-
-    function disparar() {
-        const angulo = Number(document.getElementById('angulo').value) * Math.PI / 180;
-        const v0 = Number(document.getElementById('velocidad').value);
-        let t = 0;
-        const dt = 0.02;
-        let datosMostrados = false;
-        let x0 = canonX+50, y0 = canonY-10;
-        let tray = [];
-        function animar() {
-            let x = x0 + v0 * Math.cos(angulo) * t;
-            let y = y0 - (v0 * Math.sin(angulo) * t - 0.5 * g * t * t);
-            tray.push({x, y});
-            dibujarEscena({x, y}, tray);
-            // Colisión con castillo enemigo
-            if (x > castilloX && x < castilloX+castilloW && y > castilloY && y < castilloY+castilloH && !datosMostrados) {
-                puntos++;
-                mostrarDatos(v0, angulo, t, x, y, true);
-                document.getElementById('puntos').innerText = `Puntos: ${puntos}`;
-                document.getElementById('puntos').style.display = 'block';
-                setTimeout(()=>document.getElementById('puntos').style.display='none', 2000);
-                datosMostrados = true;
-                return;
+            ctx.strokeStyle = '#ef4444';
+            ctx.lineWidth = 4;
+            for (let i = 0; i <= hastaIndice && i < puntos.length; i++) {
+                const p = puntos[i];
+                const px = origenX + p.x * escala;
+                const py = sueloY - p.y * escala;
+                if (i === 0) ctx.moveTo(px, py);
+                else ctx.lineTo(px, py);
             }
-            // Suelo
-            if (y > 480) {
-                if (!datosMostrados) mostrarDatos(v0, angulo, t, x, y, false);
-                return;
-            }
-            t += dt;
-            requestAnimationFrame(animar);
-        }
-        animar();
-    }
-
-    function mostrarDatos(v0, angulo, t, x, y, acierto=true) {
-        const alcance = ((v0*v0)*Math.sin(2*angulo))/g;
-        const alturaMax = (v0*v0*Math.pow(Math.sin(angulo),2))/(2*g);
-        const tiempoVuelo = (2*v0*Math.sin(angulo))/g;
-        const dialogo = document.getElementById('datos-dialogo');
-        dialogo.innerHTML = acierto ?
-            `<b>¡Le diste al castillo enemigo!</b><br>
-            Alcance: ${alcance.toFixed(2)} px<br>
-            Altura máxima: ${alturaMax.toFixed(2)} px<br>
-            Tiempo de vuelo: ${tiempoVuelo.toFixed(2)} s<br>
-            Tiempo de impacto: ${t.toFixed(2)} s` :
-            `<b>No le diste al castillo enemigo.</b><br>
-            Alcance: ${alcance.toFixed(2)} px<br>
-            Altura máxima: ${alturaMax.toFixed(2)} px<br>
-            Tiempo de vuelo: ${tiempoVuelo.toFixed(2)} s`;
-        dialogo.showModal();
-        setTimeout(()=>dialogo.close(), 4000);
-    }
-        </script>
-    </body>
-        ctx.drawImage(imgCastillo, castilloX, castilloY, castilloW, castilloH);
-    } else {
-        ctx.fillStyle = '#888';
-        ctx.fillRect(castilloX, castilloY, castilloW, castilloH);
-    }
-    // Castillo propio (imagen)
-    if (imgCastilloPropio.complete) {
-        ctx.drawImage(imgCastilloPropio, canonX-60, canonY-120, 120, 120);
-    } else {
-        ctx.fillStyle = '#bfa';
-        ctx.fillRect(canonX-60, canonY-120, 120, 120);
-    }
-    // Cañón
-<body>
-    <div class="card-central">
-        <div class="canvas-container">
-            <div class="controles-dentro-canvas">
-                <label>Ángulo (°): <input type="number" id="angulo" value="45" min="0" max="90"></label>
-                <label>Velocidad (m/s): <input type="number" id="velocidad" value="30" min="1"></label>
-                <button onclick="disparar()">Disparar</button>
-                <button onclick="document.getElementById('instrucciones').showModal()">Instrucciones</button>
-            </div>
-            <canvas id="canva" width="1000" height="500"></canvas>
-            <div id="puntos"></div>
-        </div>
-        <dialog id="instrucciones">
-            </body>
-            </html>
-            <h2>Instrucciones</h2>
-            <p>Ingresa el ángulo y la velocidad inicial, luego presiona "Disparar" para lanzar el cañón. Si el proyectil alcanza el castillo enemigo, verás los datos del tiro parabólico.</p>
-            <button onclick="document.getElementById('instrucciones').close()">Cerrar</button>
-        </dialog>
-        <dialog id="datos-dialogo"></dialog>
-    </div>
-    <script>
-        const canvas = document.getElementById('canva');
-        const ctx = canvas.getContext('2d');
-        const g = 9.8;
-        const castilloX = 800, castilloY = 300, castilloW = 90, castilloH = 180;
-        const canonX = 120, canonY = 440;
-        let puntos = 0;
-
-        const imgCastillo = new window.Image();
-        imgCastillo.src = 'https://cdn.pixabay.com/photo/2013/07/13/12/46/castle-146098_1280.png';
-        const imgCastilloPropio = new window.Image();
-        imgCastilloPropio.src = 'https://cdn.pixabay.com/photo/2013/07/13/12/46/castle-146098_1280.png';
-
-        // Dibuja la escena inicial cuando ambas imágenes cargan
-        let imgsCargadas = 0;
-        imgCastillo.onload = imgCastilloPropio.onload = function() {
-            imgsCargadas++;
-            if (imgsCargadas === 2) dibujarEscena();
-        };
-        // Si ya estaban en caché
-        if (imgCastillo.complete && imgCastilloPropio.complete) dibujarEscena();
-
-        function dibujarEscena(proyectil, tray) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            // Suelo
-            ctx.fillStyle = '#6c4c2b';
-            ctx.fillRect(0, 480, 1000, 20);
-
-            // Castillo enemigo (más detallado)
-            // Base
-            ctx.save();
-            ctx.fillStyle = '#b0b0b0';
-            ctx.fillRect(castilloX, castilloY + 120, castilloW, 60);
-            // Torres
-            ctx.fillStyle = '#888';
-            ctx.fillRect(castilloX - 20, castilloY + 80, 30, 100);
-            ctx.fillRect(castilloX + castilloW - 10, castilloY + 80, 30, 100);
-            // Cuerpo
-            ctx.fillStyle = '#a9a9a9';
-            ctx.fillRect(castilloX, castilloY, castilloW, 120);
-            // Puerta
-            ctx.fillStyle = '#6c4c2b';
-            ctx.fillRect(castilloX + castilloW/2 - 15, castilloY + 150, 30, 30);
-            // Ventanas
-            ctx.fillStyle = '#222';
-            ctx.fillRect(castilloX + 15, castilloY + 30, 15, 25);
-            ctx.fillRect(castilloX + castilloW - 30, castilloY + 30, 15, 25);
-            // Banderas
-            ctx.strokeStyle = '#222';
-            ctx.beginPath();
-            ctx.moveTo(castilloX + 10, castilloY);
-            ctx.lineTo(castilloX + 10, castilloY - 30);
             ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(castilloX + castilloW - 10, castilloY);
-            ctx.lineTo(castilloX + castilloW - 10, castilloY - 30);
-            ctx.stroke();
-            ctx.fillStyle = '#e74c3c';
-            ctx.beginPath();
-            ctx.moveTo(castilloX + 10, castilloY - 30);
-            ctx.lineTo(castilloX + 30, castilloY - 20);
-            ctx.lineTo(castilloX + 10, castilloY - 10);
-            ctx.closePath();
-            ctx.fill();
-            ctx.fillStyle = '#3498db';
-            ctx.beginPath();
-            ctx.moveTo(castilloX + castilloW - 10, castilloY - 30);
-            ctx.lineTo(castilloX + castilloW - 30, castilloY - 20);
-            ctx.lineTo(castilloX + castilloW - 10, castilloY - 10);
-            ctx.closePath();
-            ctx.fill();
-            ctx.restore();
 
-            // Castillo propio (más detallado)
-            ctx.save();
-            ctx.fillStyle = '#bfa';
-            ctx.fillRect(canonX - 60, canonY - 120, 120, 120);
-            // Torre
-            ctx.fillStyle = '#8bc34a';
-            ctx.fillRect(canonX - 20, canonY - 170, 40, 50);
-            // Puerta
-            ctx.fillStyle = '#6c4c2b';
-            ctx.fillRect(canonX - 15, canonY - 30, 30, 30);
-            // Ventanas
-            ctx.fillStyle = '#222';
-            ctx.fillRect(canonX - 40, canonY - 90, 20, 20);
-            ctx.fillRect(canonX + 20, canonY - 90, 20, 20);
-            ctx.restore();
+            const pActual = puntos[Math.min(hastaIndice, puntos.length - 1)];
+            if (pActual) {
+                const px = origenX + pActual.x * escala;
+                const py = sueloY - pActual.y * escala;
 
-            // Cañón
-            ctx.save();
-            ctx.translate(canonX, canonY);
-            ctx.rotate(-Number(document.getElementById('angulo').value)*Math.PI/180);
-            ctx.fillStyle = '#222';
-            ctx.fillRect(0, -10, 50, 20);
-            // Boca del cañón
-            ctx.beginPath();
-            ctx.arc(50, 0, 10, 0, Math.PI*2);
-            ctx.fillStyle = '#555';
-            ctx.fill();
-            ctx.restore();
-
-            // Trayectoria (puntos)
-            if (tray && tray.length > 1) {
-                ctx.save();
-                ctx.strokeStyle = '#f00';
-                ctx.setLineDash([6, 10]);
                 ctx.beginPath();
-                ctx.moveTo(tray[0].x, tray[0].y);
-                for (let i=1; i<tray.length; ++i) ctx.lineTo(tray[i].x, tray[i].y);
-                ctx.stroke();
-                ctx.setLineDash([]);
-                ctx.restore();
-            }
-            // Proyectil
-            if (proyectil) {
-                ctx.fillStyle = 'red';
-                ctx.beginPath();
-                ctx.arc(proyectil.x, proyectil.y, 10, 0, Math.PI*2);
+                ctx.arc(px, py, 11, 0, Math.PI * 2);
+                ctx.fillStyle = '#f97316';
                 ctx.fill();
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(px + 15, py - 45, 135, 38);
+                ctx.fillStyle = 'white';
+                ctx.font = '13px Arial';
+                ctx.fillText(`x: ${pActual.x.toFixed(1)} m`, px + 25, py - 25);
+                ctx.fillText(`y: ${pActual.y.toFixed(1)} m`, px + 25, py - 8);
             }
         }
 
-        function disparar() {
-            const angulo = Number(document.getElementById('angulo').value) * Math.PI / 180;
-            const v0 = Number(document.getElementById('velocidad').value);
-            let t = 0;
-            const dt = 0.02;
-            let datosMostrados = false;
-            let x0 = canonX+50, y0 = canonY-10;
-            let tray = [];
-            function animar() {
-                let x = x0 + v0 * Math.cos(angulo) * t;
-                let y = y0 - (v0 * Math.sin(angulo) * t - 0.5 * g * t * t);
-                tray.push({x, y});
-                dibujarEscena({x, y}, tray);
-                // Colisión con castillo enemigo
-                if (x > castilloX && x < castilloX+castilloW && y > castilloY && y < castilloY+castilloH && !datosMostrados) {
-                    puntos++;
-                    mostrarDatos(v0, angulo, t, x, y, true);
-                    document.getElementById('puntos').innerText = `Puntos: ${puntos}`;
-                    document.getElementById('puntos').style.display = 'block';
-                    setTimeout(()=>document.getElementById('puntos').style.display='none', 2000);
-                    datosMostrados = true;
-                    return;
-                }
-                // Suelo
-                if (y > 480) {
-                    if (!datosMostrados) mostrarDatos(v0, angulo, t, x, y, false);
-                    return;
-                }
-                t += dt;
-                requestAnimationFrame(animar);
+        function dibujarEjes(origenX, sueloY, margen) {
+            ctx.strokeStyle = '#0f172a';
+            ctx.lineWidth = 2;
+
+            ctx.beginPath();
+            ctx.moveTo(origenX, margen);
+            ctx.lineTo(origenX, sueloY);
+            ctx.lineTo(canvas.width - margen, sueloY);
+            ctx.stroke();
+
+            ctx.fillStyle = '#0f172a';
+            ctx.font = '14px Arial';
+            ctx.fillText('Altura (m)', origenX - 35, margen - 10);
+            ctx.fillText('Distancia (m)', canvas.width - 150, sueloY + 35);
+
+            for (let i = 0; i <= 5; i++) {
+                const x = origenX + i * ((canvas.width - margen * 2) / 5);
+                ctx.fillText(Math.round((x - origenX) / escala) + 'm', x - 10, sueloY + 20);
             }
+        }
+
+        function dibujarCanon(x, y, anguloGrados) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(-anguloGrados * Math.PI / 180);
+
+            ctx.fillStyle = '#334155';
+            ctx.fillRect(0, -8, 55, 16);
+            ctx.restore();
+
+            ctx.beginPath();
+            ctx.arc(x, y, 18, 0, Math.PI * 2);
+            ctx.fillStyle = '#475569';
+            ctx.fill();
+            ctx.strokeStyle = '#0f172a';
+            ctx.stroke();
+        }
+
+        function iniciarAnimacion() {
+            cancelarAnimacion();
+            if (!puntos.length) calcular();
+            indiceAnimacion = 0;
             animar();
         }
 
-        function mostrarDatos(v0, angulo, t, x, y, acierto=true) {
-            const alcance = ((v0*v0)*Math.sin(2*angulo))/g;
-            const alturaMax = (v0*v0*Math.pow(Math.sin(angulo),2))/(2*g);
-            const tiempoVuelo = (2*v0*Math.sin(angulo))/g;
-            const dialogo = document.getElementById('datos-dialogo');
-            dialogo.innerHTML = acierto ?
-                `<b>¡Le diste al castillo enemigo!</b><br>
-                Alcance: ${alcance.toFixed(2)} px<br>
-                Altura máxima: ${alturaMax.toFixed(2)} px<br>
-                Tiempo de vuelo: ${tiempoVuelo.toFixed(2)} s<br>
-                Tiempo de impacto: ${t.toFixed(2)} s` :
-                `<b>No le diste al castillo enemigo.</b><br>
-                Alcance: ${alcance.toFixed(2)} px<br>
-                Altura máxima: ${alturaMax.toFixed(2)} px<br>
-                Tiempo de vuelo: ${tiempoVuelo.toFixed(2)} s`;
-            dialogo.showModal();
-            setTimeout(()=>dialogo.close(), 4000);
+        function animar() {
+            dibujarEscena(indiceAnimacion);
+            indiceAnimacion++;
+
+            if (indiceAnimacion < puntos.length) {
+                animacionId = requestAnimationFrame(animar);
+            }
         }
-        // Dibuja la escena inicial
-        window.onload = () => dibujarEscena();
+
+        function pausarAnimacion() {
+            cancelarAnimacion();
+        }
+
+        function cancelarAnimacion() {
+            if (animacionId) {
+                cancelAnimationFrame(animacionId);
+                animacionId = null;
+            }
+        }
+
+        calcular();
     </script>
 </body>
+
 </html>
